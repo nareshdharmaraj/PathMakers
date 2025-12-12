@@ -10,7 +10,7 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="col-span-1">
                         <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary mb-4">
-                            <Rocket className="h-6 w-6" />
+                            <img src="/logo.png" alt="PathMakers" className="h-8 w-auto" />
                             <span>PathMakers</span>
                         </Link>
                         <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">

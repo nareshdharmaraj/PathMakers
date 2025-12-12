@@ -84,9 +84,7 @@ const DashboardLayout = ({ role }) => {
                 flex flex-col
             `}>
                 <div className="p-6 mb-4 hidden md:flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/30 flex items-center justify-center text-white font-bold text-sm">
-                        PM
-                    </div>
+                    <img src="/logo.png" alt="PathMakers" className="w-10 h-10 object-contain" />
                     <span className="font-bold text-xl tracking-tight text-slate-800">PathMakers</span>
                 </div>
 

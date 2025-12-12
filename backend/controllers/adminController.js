@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const xlsx = require('xlsx');
 require('dotenv').config({ path: '../.env' });
 
 const pool = new Pool({
@@ -66,7 +67,8 @@ exports.getClients = async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
-                c.id, c.name, c.email, c.phone,
+                c.id, c.name, c.email, c.phone, c.organization_name,
+                c.address_city, c.address_state,
                 json_agg(
                     json_build_object(
                         'id', r.id, 
@@ -75,7 +77,7 @@ exports.getClients = async (req, res) => {
                         'price_fixed', r.price_fixed,
                         'amount_received', r.amount_received
                     )
-                ) as projects,
+                ) FILTER (WHERE r.id IS NOT NULL) as projects,
                 COUNT(r.id) as project_count,
                 SUM(r.amount_received) as total_paid,
                 SUM(r.price_fixed - r.amount_received) as total_due
@@ -91,6 +93,56 @@ exports.getClients = async (req, res) => {
     }
 };
 
+// Client Management
+exports.createClient = async (req, res) => {
+    const { name, email, phone, organization_name, address_city, address_state } = req.body;
+    try {
+        const newClient = await pool.query(
+            `INSERT INTO clients (name, email, phone, organization_name, address_city, address_state) 
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [name, email, phone, organization_name, address_city, address_state]
+        );
+        res.json(newClient.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.updateClient = async (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, organization_name, address_city, address_state } = req.body;
+    try {
+        await pool.query(
+            `UPDATE clients SET name = $1, email = $2, phone = $3, organization_name = $4, address_city = $5, address_state = $6 WHERE id = $7`,
+            [name, email, phone, organization_name, address_city, address_state, id]
+        );
+        res.json({ msg: 'Client updated successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.deleteClient = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Check for dependencies or use CASCADE if configured.
+        // For safety, we might want to check if they have requests.
+        // Assuming database constraints will throw if requests exist, or we can force delete.
+        // Let's try direct delete first.
+        await pool.query('DELETE FROM clients WHERE id = $1', [id]);
+        res.json({ msg: 'Client deleted successfully' });
+    } catch (err) {
+        console.error(err.message);
+        if (err.code === '23503') { // Foreign key violation
+            res.status(400).json({ msg: 'Cannot delete client with active requests.' });
+        } else {
+            res.status(500).send('Server Error');
+        }
+    }
+};
+
 exports.getRequests = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -99,8 +151,9 @@ exports.getRequests = async (req, res) => {
                 c.name as client_name, 
                 c.email as client_email, 
                 c.phone as client_phone,
-                c.address_city,
-                s.name as service_name,
+                c.organization_name,
+                c.address_city, c.address_state, c.address_pincode, c.address_door, c.address_district,
+                s.name as service_name, s.code as service_code,
                 COALESCE(
                     json_agg(
                         json_build_object(
@@ -149,6 +202,37 @@ exports.getEmployees = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+};
+
+// Employee Management
+exports.updateEmployee = async (req, res) => {
+    const { id } = req.params;
+    const { name, email, role, is_active } = req.body;
+    try {
+        await pool.query(
+            'UPDATE employees SET name = $1, email = $2, role = $3, is_active = $4 WHERE id = $5',
+            [name, email, role, is_active, id]
+        );
+        res.json({ msg: 'Employee updated successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.deleteEmployee = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM employees WHERE id = $1', [id]);
+        res.json({ msg: 'Employee deleted successfully' });
+    } catch (err) {
+        console.error(err.message);
+        if (err.code === '23503') {
+            res.status(400).json({ msg: 'Cannot delete employee with assignments.' });
+        } else {
+            res.status(500).send('Server Error');
+        }
     }
 };
 
@@ -272,9 +356,65 @@ exports.reviewSubmission = async (req, res) => {
 };
 
 exports.getContactMessages = async (req, res) => {
+    const { name, startDate, endDate, status, service } = req.query;
     try {
-        const result = await pool.query("SELECT * FROM contact_messages ORDER BY created_at DESC");
+        let query = "SELECT * FROM contact_messages WHERE 1=1";
+        const params = [];
+        let count = 1;
+
+        if (name) {
+            query += ` AND name ILIKE $${count}`;
+            params.push(`%${name}%`);
+            count++;
+        }
+        if (startDate) {
+            query += ` AND created_at >= $${count}`;
+            params.push(startDate);
+            count++;
+        }
+        if (endDate) {
+            query += ` AND created_at <= $${count}`;
+            params.push(endDate);
+            count++;
+        }
+        if (status) {
+            query += ` AND status = $${count}`;
+            params.push(status);
+            count++;
+        }
+        if (service) {
+            // services is a JSON string or array. Text search usually better if simple text.
+            query += ` AND services::text ILIKE $${count}`;
+            params.push(`%${service}%`);
+            count++;
+        }
+
+        query += " ORDER BY created_at DESC";
+
+        const result = await pool.query(query, params);
         res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.exportDatabase = async (req, res) => {
+    try {
+        const tables = ['requests', 'clients', 'employees', 'services', 'contact_messages', 'request_assignments'];
+        const workbook = xlsx.utils.book_new();
+
+        for (const table of tables) {
+            const result = await pool.query(`SELECT * FROM ${table}`);
+            const worksheet = xlsx.utils.json_to_sheet(result.rows);
+            xlsx.utils.book_append_sheet(workbook, worksheet, table);
+        }
+
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        res.setHeader('Content-Disposition', 'attachment; filename="database_export.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(buffer);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

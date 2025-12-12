@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Search, Filter, Calendar, DollarSign, Code, FileText, CheckCircle, X, Users, ExternalLink, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Loader2, Search, Filter, Calendar, DollarSign, Code, FileText, CheckCircle, X, Users, ExternalLink, AlertTriangle, MessageSquare, Receipt, Download, Globe } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { API_URL } from '../../utils/api';
 
 const Requests = () => {
@@ -10,6 +12,7 @@ const Requests = () => {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showReceiptModal, setShowReceiptModal] = useState(false);
 
     // Assignment Form State
     const [assignForm, setAssignForm] = useState({
@@ -73,6 +76,11 @@ const Requests = () => {
         setShowReviewModal(true);
     };
 
+    const openReceiptModal = (req) => {
+        setSelectedRequest(req);
+        setShowReceiptModal(true);
+    };
+
     const toggleEmployee = (empId) => {
         setAssignForm(prev => {
             const newIds = prev.employeeIds.includes(empId)
@@ -133,6 +141,84 @@ const Requests = () => {
         } finally {
             setReviewLoading(false);
         }
+    };
+
+    const downloadReceipt = () => {
+        if (!selectedRequest) return;
+        const doc = new jsPDF();
+
+        // Brand Header (Mock Logo)
+        doc.setFillColor(79, 70, 229); // Indigo 600
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text("PathMakers", 20, 25);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text("Project Receipt & Details", 20, 32);
+
+        // Receipt Info
+        doc.setTextColor(40, 40, 40);
+        doc.setFontSize(10);
+        doc.text(`Receipt Date: ${new Date().toLocaleDateString()}`, 150, 55);
+        doc.text(`Request ID: ${selectedRequest.unique_id}`, 150, 60);
+
+        // Client Details
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Client Information", 20, 60);
+        doc.setLineWidth(0.5);
+        doc.line(20, 62, 80, 62);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Name: ${selectedRequest.client_name}`, 20, 70);
+        doc.text(`Email: ${selectedRequest.client_email || 'N/A'}`, 20, 75);
+        doc.text(`Phone: ${selectedRequest.client_phone}`, 20, 80);
+        doc.text(`Organization: ${selectedRequest.organization_name || 'N/A'}`, 20, 85);
+        doc.text(`Location: ${selectedRequest.address_city}, ${selectedRequest.address_state}`, 20, 90);
+
+        // Project Details
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Project Details", 20, 110);
+        doc.line(20, 112, 80, 112);
+
+        autoTable(doc, {
+            startY: 120,
+            head: [['Description', 'Value']],
+            body: [
+                ['Service Type', selectedRequest.service_name],
+                ['Service Code', selectedRequest.service_code],
+                ['Current Status', selectedRequest.status],
+                ['Quoted Price', selectedRequest.quoted_price || 'Pending'],
+                ['Expected Delivery', selectedRequest.admin_expected_date ? new Date(selectedRequest.admin_expected_date).toLocaleDateString() : 'TBD'],
+            ],
+            theme: 'grid',
+            headStyles: { fillColor: [79, 70, 229] },
+            styles: { fontSize: 10 }
+        });
+
+        // Message/Requirement
+        const finalY = (doc).lastAutoTable.finalY + 15;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Client Requirements", 20, finalY);
+        doc.line(20, finalY + 2, 80, finalY + 2);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const splitText = doc.splitTextToSize(selectedRequest.message || "No additional details provided.", 170);
+        doc.text(splitText, 20, finalY + 10);
+
+        // Footer warning
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(8);
+        doc.text("This receipt is computer generated and requires no signature.", 105, 280, { align: 'center' });
+        doc.text("PathMakers Tech Solutions", 105, 285, { align: 'center' });
+
+        doc.save(`${selectedRequest.unique_id}_receipt.pdf`);
     };
 
 
@@ -221,12 +307,21 @@ const Requests = () => {
                                                 Review Submission
                                             </button>
                                         )}
-                                        <button
-                                            onClick={() => openAssignModal(req)}
-                                            className="px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 rounded-lg text-sm font-bold border border-blue-500/20 transition-colors w-full md:w-auto"
-                                        >
-                                            Manage
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => openReceiptModal(req)}
+                                                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors border border-slate-700"
+                                                title="View Receipt"
+                                            >
+                                                <Receipt size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => openAssignModal(req)}
+                                                className="px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 rounded-lg text-sm font-bold border border-blue-500/20 transition-colors"
+                                            >
+                                                Manage
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -482,6 +577,64 @@ const Requests = () => {
                                     </div>
                                 </div>
                             )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Receipt Modal */}
+            <AnimatePresence>
+                {showReceiptModal && selectedRequest && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+                        >
+                            <div className="bg-indigo-600 p-6 text-white text-center relative">
+                                <button onClick={() => setShowReceiptModal(false)} className="absolute top-4 right-4 text-white/70 hover:text-white">
+                                    <X size={20} />
+                                </button>
+                                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                                    <Receipt size={24} />
+                                </div>
+                                <h3 className="text-2xl font-black">Project Receipt</h3>
+                                <p className="text-white/70 text-sm">Official Record</p>
+                            </div>
+
+                            <div className="p-6 space-y-4">
+                                <div className="text-center pb-4 border-b border-slate-100">
+                                    <h2 className="text-xl font-bold text-slate-800 mb-1">{selectedRequest.service_name}</h2>
+                                    <div className="text-xs font-mono text-slate-400 uppercase tracking-widest">{selectedRequest.unique_id}</div>
+                                </div>
+
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Client Name</span>
+                                        <span className="font-bold text-slate-800">{selectedRequest.client_name}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Status</span>
+                                        <span className="font-bold text-indigo-600">{selectedRequest.status}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Quoted Price</span>
+                                        <span className="font-bold text-slate-800">{selectedRequest.quoted_price || 'Pending'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Expected Delivery</span>
+                                        <span className="font-bold text-slate-800">{selectedRequest.admin_expected_date ? new Date(selectedRequest.admin_expected_date).toLocaleDateString() : 'TBD'}</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={downloadReceipt}
+                                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 mt-4 shadow-lg shadow-slate-900/20 active:scale-95 transition-all"
+                                >
+                                    <Download size={18} /> Download Receipt PDF
+                                </button>
+                            </div>
                         </motion.div>
                     </div>
                 )}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, FileText, CheckCircle, Activity, Loader2, TrendingUp, CreditCard } from 'lucide-react';
+import { Users, FileText, CheckCircle, Activity, Loader2, TrendingUp, CreditCard, Database } from 'lucide-react';
 import SpotlightCard from '../../components/ui/SpotlightCard';
 import { API_URL } from '../../utils/api';
 
@@ -29,6 +29,11 @@ const AdminDashboard = () => {
         fetchStats();
     }, []);
 
+    const handleExportDatabase = () => {
+        // Trigger file download
+        window.location.href = `${API_URL}/admin/export-db`;
+    };
+
     if (loading) {
         return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={40} /></div>;
     }
@@ -52,7 +57,15 @@ const AdminDashboard = () => {
 
     return (
         <div className="p-4 md:p-8 space-y-8">
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">System Overview</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">System Overview</h1>
+                <button
+                    onClick={handleExportDatabase}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-slate-800/20 active:scale-95"
+                >
+                    <Database size={16} /> Export Database
+                </button>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {statCards.map((stat, index) => (

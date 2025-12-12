@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Plus, X, Lock, Activity, CheckCircle, Clock, Shield } from 'lucide-react';
+import { Loader2, Plus, X, Lock, Activity, CheckCircle, Clock, Shield, Trash2, Edit } from 'lucide-react';
 import { API_URL } from '../../utils/api';
 
 const Employees = () => {
@@ -8,8 +8,15 @@ const Employees = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    // Add Form State
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'employee' });
+
+    // Edit Form State
+    const [editFormData, setEditFormData] = useState({ id: '', name: '', email: '', role: '', is_active: true });
+
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [passwordData, setPasswordData] = useState({ newPassword: '' });
     const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -59,6 +66,61 @@ const Employees = () => {
         }
     };
 
+    const handleEditEmployee = async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/admin/employees/${editFormData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                body: JSON.stringify(editFormData)
+            });
+
+            if (res.ok) {
+                await fetchEmployees();
+                setShowEditModal(false);
+            } else {
+                alert('Failed to update employee');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSubmitLoading(false);
+        }
+    };
+
+    const handleDeleteEmployee = async (id) => {
+        if (!window.confirm('Are you sure you want to remove this team member?')) return;
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/admin/employees/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-auth-token': token }
+            });
+
+            if (res.ok) {
+                await fetchEmployees();
+            } else {
+                const data = await res.json();
+                alert(data.msg || 'Failed to delete employee');
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const openEditModal = (emp) => {
+        setEditFormData({
+            id: emp.id,
+            name: emp.name,
+            email: emp.email,
+            role: emp.role,
+            is_active: emp.is_active
+        });
+        setShowEditModal(true);
+    };
+
     const handlePasswordReset = async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
@@ -101,9 +163,17 @@ const Employees = () => {
                 {employees.map((emp) => (
                     <div key={emp.id} className="bg-white border border-slate-200 rounded-3xl p-6 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all group relative overflow-hidden flex flex-col">
                         <div className={`absolute top-0 right-0 p-4 flex gap-2`}>
+                            <div className="flex gap-1 mr-2">
+                                <button onClick={() => openEditModal(emp)} className="p-1 text-slate-400 hover:text-indigo-600 transition-colors bg-slate-50 rounded-lg">
+                                    <Edit size={14} />
+                                </button>
+                                <button onClick={() => handleDeleteEmployee(emp.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors bg-slate-50 rounded-lg">
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
                             {emp.is_active ?
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ring-1 ring-emerald-500/20">ACTIVE</span>
-                                : <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 ring-1 ring-rose-500/20">INACTIVE</span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 ring-1 ring-emerald-500/20 h-fit">ACTIVE</span>
+                                : <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 ring-1 ring-rose-500/20 h-fit">INACTIVE</span>
                             }
                         </div>
 
@@ -217,6 +287,61 @@ const Employees = () => {
                                     className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all mt-4 flex justify-center shadow-lg shadow-indigo-500/20 active:scale-95"
                                 >
                                     {submitLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Edit Employee Modal */}
+            <AnimatePresence>
+                {showEditModal && (
+                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white border border-slate-100 p-8 rounded-3xl w-full max-w-md shadow-2xl relative"
+                        >
+                            <button onClick={() => setShowEditModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-indigo-600 transition-colors bg-slate-50 p-1 rounded-full">
+                                <X size={20} />
+                            </button>
+                            <h2 className="text-2xl font-extrabold mb-6 text-slate-800">Edit Team Member</h2>
+                            <form onSubmit={handleEditEmployee} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                                    <input required type="text" value={editFormData.name} onChange={e => setEditFormData({ ...editFormData, name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                                    <input required type="email" value={editFormData.email} onChange={e => setEditFormData({ ...editFormData, email: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
+                                    <select value={editFormData.role} onChange={e => setEditFormData({ ...editFormData, role: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold">
+                                        <option value="employee">Employee</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input
+                                            type="checkbox"
+                                            name="toggle"
+                                            id="toggle"
+                                            checked={editFormData.is_active}
+                                            onChange={e => setEditFormData({ ...editFormData, is_active: e.target.checked })}
+                                            className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-5"
+                                            style={{ right: editFormData.is_active ? '0' : 'auto' }}
+                                        />
+                                        <label htmlFor="toggle" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${editFormData.is_active ? 'bg-indigo-500' : 'bg-slate-300'}`}></label>
+                                    </div>
+                                    <label htmlFor="toggle" className="text-sm font-bold text-slate-700">Active Account Status</label>
+                                </div>
+
+                                <button type="submit" disabled={submitLoading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all mt-4 flex justify-center shadow-lg shadow-indigo-500/20 active:scale-95">
+                                    {submitLoading ? <Loader2 className="animate-spin" size={16} /> : 'Save Changes'}
                                 </button>
                             </form>
                         </motion.div>

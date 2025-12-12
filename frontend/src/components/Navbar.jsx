@@ -38,7 +38,7 @@ const Navbar = () => {
             <div className="container mx-auto px-6 flex justify-between items-center">
                 {/* Logo */}
                 <Link to="/" className="text-2xl font-bold text-primary flex items-center gap-2">
-                    <Rocket className="h-8 w-8" />
+                    <img src="/logo.png" alt="PathMakers" className="h-10 w-auto" />
                     <span>PathMakers</span>
                 </Link>
 

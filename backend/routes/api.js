@@ -51,5 +51,13 @@ router.post('/admin/employees', auth, adminController.addEmployee);
 router.post('/admin/password', auth, adminController.updatePassword);
 router.post('/admin/financials', auth, adminController.updateRequestFinancials);
 router.get('/admin/clients', auth, adminController.getClients);
+router.post('/admin/clients', auth, adminController.createClient);
+router.put('/admin/clients/:id', auth, adminController.updateClient);
+router.delete('/admin/clients/:id', auth, adminController.deleteClient);
+
+router.put('/admin/employees/:id', auth, adminController.updateEmployee);
+router.delete('/admin/employees/:id', auth, adminController.deleteEmployee);
+
+router.get('/admin/export-db', auth, adminController.exportDatabase);
 
 module.exports = router;
