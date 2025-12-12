@@ -29,8 +29,8 @@ const seed = async () => {
         console.log('Services seeded.');
 
         // 2. Seed Admin
-        const adminEmail = 'admin@pathmakers.tech';
-        const adminPass = 'admin123';
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@pathmakers.tech';
+        const adminPass = process.env.ADMIN_PASSWORD || 'changeme_in_env';
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(adminPass, salt);
 
