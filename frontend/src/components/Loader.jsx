@@ -45,51 +45,40 @@ const Loader = ({ onComplete }) => {
 
             <div className="relative z-10 flex flex-col items-center">
                 {/* Main Animation */}
-                <div className="relative mb-16">
-                    {/* Rotating Rings */}
+                {/* Main Animation - 3D Text Branding */}
+                <div className="relative mb-8 perspective-1000">
                     <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                        className="absolute inset-0 border border-blue-500/30 rounded-full w-40 h-40 -top-8 -left-8"
-                        style={{ borderTopColor: 'transparent', borderLeftColor: 'transparent' }}
-                    ></motion.div>
-                    <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-                        className="absolute inset-0 border border-purple-500/30 rounded-full w-56 h-56 -top-16 -left-16"
-                        style={{ borderBottomColor: 'transparent', borderRightColor: 'transparent' }}
-                    ></motion.div>
-
-                    {/* Central Rocket */}
-                    <motion.div
-                        initial={{ y: 20, rotate: -45 }}
-                        animate={{ y: [-10, 10, -10], rotate: -45 }}
-                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                        initial={{ rotateX: 90, opacity: 0 }}
+                        animate={{ rotateX: 0, opacity: 1 }}
+                        transition={{ duration: 1, ease: "backOut" }}
                         className="relative z-20"
                     >
-                        <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,0.6)] backdrop-blur-md border border-white/20">
-                            <Rocket size={48} className="text-white drop-shadow-md" />
-                        </div>
+                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 filter drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]"
+                            style={{ textShadow: '0px 4px 0px rgba(0,0,0,0.3), 0px 8px 20px rgba(0,0,0,0.4)' }}
+                        >
+                            PathMakers
+                        </h1>
+                        {/* Shimmer overlay */}
+                        <motion.div
+                            animate={{ x: ['-200%', '200%'] }}
+                            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut", delay: 1 }}
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 pointer-events-none"
+                        ></motion.div>
                     </motion.div>
 
-                    {/* Thrust Particles */}
-                    <motion.div
-                        className="absolute top-1/2 left-1/2 w-10 h-32 bg-gradient-to-t from-transparent via-blue-500 to-cyan-400 blur-xl opacity-60 rounded-full -z-10 origin-top"
-                        style={{ transform: 'translate(-50%, -50%) rotate(135deg) translateY(40px)' }}
-                        animate={{ height: [100, 150, 100], opacity: [0.5, 0.8, 0.5] }}
-                        transition={{ repeat: Infinity, duration: 0.5 }}
-                    ></motion.div>
+                    {/* Shadow Reflection */}
+                    <div className="absolute top-full left-0 right-0 h-4 bg-black/20 blur-xl rounded-[100%] transform scale-x-75 translate-y-4"></div>
                 </div>
 
-                {/* Message */}
-                <div className="h-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-bold text-xl tracking-wider uppercase">
+                {/* Rotating subtitle messages */}
+                <div className="h-6 overflow-hidden">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={msgIndex}
-                            initial={{ opacity: 0, filter: "blur(5px)", y: 10 }}
-                            animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                            exit={{ opacity: 0, filter: "blur(5px)", y: -10 }}
-                            transition={{ duration: 0.4 }}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
+                            className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]"
                         >
                             {messages[msgIndex]}
                         </motion.div>

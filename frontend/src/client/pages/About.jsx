@@ -123,7 +123,13 @@ const StatBox = ({ value, label }) => (
 );
 
 const TeamMember = ({ name, role, img }) => (
-    <div className="group relative">
+    <motion.div
+        whileHover={{ y: -10 }}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="group relative"
+    >
         <div className="relative overflow-hidden rounded-3xl aspect-[3/4] mb-4 shadow-lg">
             <img src={img} alt={name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
@@ -137,7 +143,7 @@ const TeamMember = ({ name, role, img }) => (
         </div>
         <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{name}</h3>
         <p className="text-slate-500">{role}</p>
-    </div>
+    </motion.div>
 );
 
 export default About;

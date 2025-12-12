@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Rocket } from 'lucide-react';
+import { Menu, X, Rocket, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 import clsx from 'clsx';
@@ -30,7 +30,7 @@ const Navbar = () => {
         <nav
             className={clsx(
                 'fixed w-full z-50 transition-all duration-300',
-                scrolled
+                scrolled || location.pathname !== '/'
                     ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-lg py-3'
                     : 'bg-transparent py-5'
             )}
@@ -62,6 +62,9 @@ const Navbar = () => {
                     </div>
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
+                        <Link to="/admin/login" className="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" title="Admin Access">
+                            <User size={20} />
+                        </Link>
                         <Link
                             to="/contact"
                             className="bg-primary text-primary-foreground px-5 py-2 rounded-full font-medium hover:bg-blue-600 transition-colors shadow-md"
@@ -74,6 +77,9 @@ const Navbar = () => {
                 {/* Mobile Toggle */}
                 <div className="md:hidden flex items-center gap-4">
                     <ThemeToggle />
+                    <Link to="/admin/login" className="text-slate-800 dark:text-slate-200" title="Admin Access">
+                        <User size={24} />
+                    </Link>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="text-slate-800 dark:text-slate-200"
@@ -109,9 +115,16 @@ const Navbar = () => {
                                 </Link>
                             ))}
                             <Link
+                                to="/admin/login"
+                                onClick={() => setIsOpen(false)}
+                                className="text-lg font-medium py-2 border-b border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 flex items-center gap-2"
+                            >
+                                <User size={20} /> Admin Login
+                            </Link>
+                            <Link
                                 to="/contact"
                                 onClick={() => setIsOpen(false)}
-                                className="mt-2 bg-primary text-primary-foreground px-5 py-3 rounded-lg font-medium text-center hover:bg-blue-600 transition-colors"
+                                className="mt-2 bg-blue-600 text-white px-5 py-3 rounded-lg font-medium text-center hover:bg-blue-700 transition-colors shadow-lg"
                             >
                                 Get Started
                             </Link>

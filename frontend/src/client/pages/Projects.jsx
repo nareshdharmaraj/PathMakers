@@ -104,8 +104,8 @@ const Projects = () => {
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
                             className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${activeCategory === cat
-                                    ? 'bg-blue-600 text-white shadow-lg scale-105'
-                                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                                ? 'bg-blue-600 text-white shadow-lg scale-105'
+                                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
                                 }`}
                         >
                             {cat}
@@ -126,6 +126,7 @@ const Projects = () => {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
+                                whileHover={{ y: -10 }}
                                 transition={{ duration: 0.3 }}
                             >
                                 <SpotlightCard className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-full flex flex-col group" spotlightColor="rgba(59, 130, 246, 0.15)">

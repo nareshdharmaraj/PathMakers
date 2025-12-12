@@ -1,12 +1,15 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Code, Smartphone, Brain, BookOpen, Layers, BarChart, Cloud, Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Code, Smartphone, Brain, BookOpen, Layers, BarChart, Cloud, Shield, ArrowRight } from 'lucide-react';
 import SpotlightCard from '../../components/ui/SpotlightCard';
+import BookingModal from '../components/BookingModal';
+import ServiceDetailModal from '../components/ServiceDetailModal';
 
 const services = [
     {
         icon: <Code size={40} />,
         title: "Web Development",
+        code: "WEB",
         desc: "From landing pages to complex web apps, we build responsive, accessible, and performant digital experiences using the latest modern stacks like React, Next.js, and Node.js.",
         color: "text-blue-600 dark:text-blue-400",
         gradient: "from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20"
@@ -14,6 +17,7 @@ const services = [
     {
         icon: <Smartphone size={40} />,
         title: "App Development",
+        code: "APP",
         desc: "Native-quality mobile applications for iOS and Android. detailed UX/UI design, seamless API integration, and store deployment support.",
         color: "text-purple-600 dark:text-purple-400",
         gradient: "from-purple-100 to-pink-100 dark:from-purple-500/20 dark:to-pink-500/20"
@@ -21,6 +25,7 @@ const services = [
     {
         icon: <Brain size={40} />,
         title: "AI Solutions",
+        code: "AI",
         desc: "Leverage the power of Artificial Intelligence. Custom chatbots, predictive models, and automation workflows that give your business a competitive edge.",
         color: "text-green-600 dark:text-green-400",
         gradient: "from-green-100 to-emerald-100 dark:from-green-500/20 dark:to-emerald-500/20"
@@ -28,6 +33,7 @@ const services = [
     {
         icon: <BookOpen size={40} />,
         title: "Academic Assistance",
+        code: "ACAD",
         desc: "Comprehensive support for researchers and students. Data analysis, thesis structure guidance, and technical implementation of research projects.",
         color: "text-orange-600 dark:text-orange-400",
         gradient: "from-orange-100 to-yellow-100 dark:from-orange-500/20 dark:to-yellow-500/20"
@@ -35,6 +41,7 @@ const services = [
     {
         icon: <Cloud size={40} />,
         title: "Cloud Infrastructure",
+        code: "CLD",
         desc: "Scalable, secure, and cost-effective cloud architecture. AWS, Azure, and Google Cloud setup, migration, and management.",
         color: "text-sky-600 dark:text-sky-400",
         gradient: "from-sky-100 to-indigo-100 dark:from-sky-500/20 dark:to-indigo-500/20"
@@ -42,6 +49,7 @@ const services = [
     {
         icon: <Shield size={40} />,
         title: "Cyber Security",
+        code: "SEC",
         desc: "Protect your digital assets. Penetration testing, vulnerability assessments, and security protocol implementation.",
         color: "text-red-600 dark:text-red-400",
         gradient: "from-red-100 to-rose-100 dark:from-red-500/20 dark:to-rose-500/20"
@@ -49,6 +57,9 @@ const services = [
 ];
 
 const Services = () => {
+    const [selectedService, setSelectedService] = useState(null); // For Detail Modal
+    const [bookingService, setBookingService] = useState(null); // For Booking Modal
+
     return (
         <div className="bg-slate-50 dark:bg-slate-950 min-h-screen text-slate-900 dark:text-white pt-24 pb-20 transition-colors duration-300">
             <div className="container mx-auto px-6">
@@ -70,18 +81,73 @@ const Services = () => {
                 {/* Services Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {services.map((service, index) => (
-                        <ServiceCard key={index} {...service} delay={index * 0.1} />
+                        <ServiceCard
+                            key={index}
+                            {...service}
+                            delay={index * 0.1}
+                            onKnowMore={() => setSelectedService(service)}
+                            onBook={() => setBookingService(service)}
+                        />
                     ))}
                 </div>
 
-                {/* Process Section */}
+                {/* Modals */}
+                <AnimatePresence>
+                    {selectedService && (
+                        <ServiceDetailModal
+                            service={selectedService}
+                            onClose={() => setSelectedService(null)}
+                            onBook={() => {
+                                setBookingService(selectedService);
+                                setSelectedService(null);
+                            }}
+                        />
+                    )}
+                    {bookingService && (
+                        <BookingModal
+                            service={bookingService}
+                            onClose={() => setBookingService(null)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Project Stages Section */}
                 <div className="mt-32">
-                    <h2 className="text-3xl font-bold text-center mb-16 text-slate-900 dark:text-white">How We Work</h2>
-                    <div className="grid md:grid-cols-4 gap-6">
-                        <ProcessStep num="01" title="Discovery" desc="Understanding your goals and requirements." />
-                        <ProcessStep num="02" title="Strategy" desc="Planning the perfect roadmap for success." />
-                        <ProcessStep num="03" title="Development" desc="Coding with precision and creativity." />
-                        <ProcessStep num="04" title="Launch" desc="Deploying and optimizing for growth." />
+                    <h2 className="text-3xl font-bold text-center mb-16 text-slate-900 dark:text-white">Project Request Stages</h2>
+                    <div className="grid md:grid-cols-5 gap-4">
+                        <ProcessStep
+                            num="01"
+                            title="Pending"
+                            desc="Request submitted. Waiting for confirmation from PathMakers team."
+                            color="text-blue-500"
+                        />
+                        <ProcessStep
+                            num="02"
+                            title="Confirmed"
+                            desc="Project approved. Ready to start development."
+                            color="text-indigo-500"
+                        />
+                        <ProcessStep
+                            num="03"
+                            title="Ongoing"
+                            desc="Active development and implementation in progress."
+                            color="text-purple-500"
+                        />
+                        <ProcessStep
+                            num="04"
+                            title="Payment"
+                            desc="Work completed and reviewed. Waiting for final payment."
+                            color="text-orange-500"
+                        />
+                        <ProcessStep
+                            num="05"
+                            title="Completed"
+                            desc="All stages finished. Project delivered successfully."
+                            color="text-green-500"
+                        />
+                    </div>
+                    <div className="text-center mt-12">
+                        <p className="text-slate-500 mb-4">Check your current project status anytime.</p>
                     </div>
                 </div>
 
@@ -90,33 +156,50 @@ const Services = () => {
     );
 };
 
-const ServiceCard = ({ icon, title, desc, color, gradient, delay }) => (
+const ServiceCard = ({ icon, title, desc, color, gradient, delay, onKnowMore, onBook }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -10 }}
         transition={{ delay, duration: 0.5 }}
+        className="h-full"
     >
-        <SpotlightCard className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-full" spotlightColor="rgba(59, 130, 246, 0.15)">
-            <div className="p-8 h-full flex flex-col">
+        <SpotlightCard className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-full flex flex-col" spotlightColor="rgba(59, 130, 246, 0.15)">
+            <div className="p-8 flex flex-col h-full z-10 relative">
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center ${color} mb-6 border border-slate-100 dark:border-white/5`}>
                     {icon}
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed flex-grow">
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-8 flex-grow line-clamp-3">
                     {desc}
                 </p>
+                <div className="flex gap-4 mt-auto">
+                    <button
+                        onClick={onKnowMore}
+                        className="flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    >
+                        Know More
+                    </button>
+                    <button
+                        onClick={onBook}
+                        className="flex-1 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg shadow-blue-500/20"
+                    >
+                        Book Now
+                    </button>
+                </div>
             </div>
         </SpotlightCard>
     </motion.div>
 );
 
-const ProcessStep = ({ num, title, desc }) => (
+const ProcessStep = ({ num, title, desc, color }) => (
     <div className="relative pl-8 border-l border-slate-200 dark:border-slate-800">
-        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-600"></div>
-        <div className="text-4xl font-black text-slate-300 dark:text-slate-800 mb-2">{num}</div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-        <p className="text-slate-500 text-sm">{desc}</p>
+        <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-600 ${color ? color.replace('text', 'bg').replace('500', '400') : ''}`}></div>
+        <div className={`text-4xl font-black mb-2 opacity-50 ${color || 'text-slate-300 dark:text-slate-800'}`}>{num}</div>
+        <h3 className={`text-xl font-bold mb-2 ${color || 'text-slate-900 dark:text-white'}`}>{title}</h3>
+        <p className="text-slate-500 text-sm">{desc || ''}</p>
     </div>
 );
 
 export default Services;
+
