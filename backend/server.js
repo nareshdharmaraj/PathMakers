@@ -1,4 +1,9 @@
 const express = require('express');
+const dns = require('dns');
+// Force IPv4 to avoid IPv6 connection issues (ENETUNREACH)
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 const cors = require('cors');
 const { Pool } = require('pg');
 require('dotenv').config({ path: '../.env' });
@@ -11,17 +16,16 @@ app.use(cors());
 app.use(express.json());
 
 // Database Connection
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
+// Database Connection
+const pool = require('./config/db');
 
 // Test DB Connection
-pool.connect((err, client, release) => {
+pool.query('SELECT NOW()', (err, res) => {
     if (err) {
-        return console.error('Error acquiring client', err.stack);
+        console.error('Error connecting to database:', err.message);
+    } else {
+        console.log('Connected to Database at', res.rows[0].now);
     }
-    console.log('Connected to Database');
-    release();
 });
 
 // Routes

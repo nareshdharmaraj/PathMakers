@@ -1,11 +1,6 @@
-const { Pool } = require('pg');
+const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: '../.env' });
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;

@@ -9,9 +9,21 @@ export const loginUser = async (email, password) => {
         body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+        const text = await response.text();
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            // If response is not JSON (e.g., 500 HTML error), throw text or generic error
+            throw new Error(response.statusText || 'Server Error: ' + text.substring(0, 50));
+        }
+    } catch (err) {
+        throw new Error(err.message || 'Network Error');
+    }
+
     if (!response.ok) {
-        throw new Error(data.msg || 'Login failed');
+        throw new Error(data.msg || data.message || 'Login failed');
     }
     return data;
 };

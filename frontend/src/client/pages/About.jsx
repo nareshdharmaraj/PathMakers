@@ -136,9 +136,9 @@ const About = () => {
 
                 {/* Core Team Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <TeamMember name="Subash Shanmugam" role="Core Team" img="/assets/team/subash.jpg" delay={0.1} />
-                    <TeamMember name="Saravana Priyan ST" role="Core Team" img="/assets/team/SaravanaPriyan.jpg" delay={0.2} />
-                    <TeamMember name="Sardheesh M" role="Core Team" img="/assets/team/Sardheesh.jpg" delay={0.3} />
+                    <TeamMember name="Subash Shanmugam" role="Core Team" img="/assets/team/subash.jpeg" delay={0.1} />
+                    <TeamMember name="Saravana Priyan ST" role="Core Team" img="/assets/team/SaravanaPriyan.png" delay={0.2} />
+                    <TeamMember name="Sardheesh M" role="Core Team" img="/assets/team/Sardheesh.jpeg" delay={0.3} />
                     <TeamMember name="Ruthuvarshan E" role="Core Team" img="/assets/team/Ruthuvarshan.jpg" delay={0.4} />
                 </div>
 
