@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Code, Smartphone, Brain, BookOpen, Star, Zap, Globe, Cpu, ChevronDown, Quote, Search, X, Loader2, Sparkles, Rocket } from 'lucide-react';
+import { ArrowRight, Code, Smartphone, Brain, BookOpen, Star, Zap, Globe, Cpu, ChevronDown, Quote, Search, X, Loader2, Sparkles, Rocket, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SpotlightCard from '../../components/ui/SpotlightCard';
 import { API_URL } from '../../utils/api';
@@ -244,7 +244,7 @@ const Landing = () => {
                         <StatItem value="23" label="Projects" suffix="+" icon={<Cpu />} color="text-blue-500" />
                         <StatItem value="98" label="Satisfaction" suffix="%" icon={<Star />} color="text-yellow-500" />
                         <StatItem value="10" label="Hardcore Devs" suffix="+" icon={<UsersIcon />} color="text-pink-500" />
-                        <StatItem value="12" label="Awards Won" suffix="" icon={<TrophyIcon />} color="text-purple-500" />
+                        <StatItem value="1" label="Years Experience" suffix="+" icon={<Shield />} color="text-purple-500" />
                     </motion.div>
                 </div>
             </section>
@@ -286,6 +286,81 @@ const Landing = () => {
                             desc="Strategic digital transformation advice to guide your tech roadmap."
                             gradient="from-orange-500 to-red-500"
                         />
+                    </div>
+                </div>
+            </section>
+
+            {/* --- TESTIMONIALS --- */}
+            <section className="py-24 bg-white dark:bg-slate-900/50">
+                <div className="container mx-auto px-6">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <span className="text-blue-500 font-bold tracking-widest uppercase text-sm">Testimonials</span>
+                        <h2 className="text-3xl md:text-5xl font-black mt-2 text-slate-900 dark:text-white">Client Success Stories</h2>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                            { name: "Praveen", feedback: "I liked how simple and clear the whole process was. The PathMakers team kept me updated without me having to ask again and again." },
+                            { name: "Aishwarya", feedback: "What impressed me most was their patience. I had many small changes, and they handled everything calmly." },
+                            { name: "Rakesh", feedback: "No fancy talk, no confusion… just straightforward work. PathMakers understood my requirement in the first discussion itself." },
+                            { name: "Harish", feedback: "The best part was their clarity. They showed me small progress steps instead of dumping everything at once." },
+                            { name: "Sneha", feedback: "Honestly, I expected delays or confusion like my past experiences, but PathMakers was very organised." },
+                            { name: "Karthik", feedback: "I had a tight deadline, but they still managed to deliver without compromising on quality." }
+                        ].map((test, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                                className="p-8 rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 relative hover:shadow-lg transition-shadow"
+                            >
+                                <Quote className="text-blue-500 mb-4 opacity-50" size={24} />
+                                <p className="text-slate-600 dark:text-slate-300 italic mb-6 leading-relaxed">"{test.feedback}"</p>
+                                <div>
+                                    <div className="text-slate-900 dark:text-white font-bold text-lg">{test.name}</div>
+                                    <div className="text-blue-500 text-xs uppercase font-bold tracking-wider">Verified Client</div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* --- FEATURED PROJECTS --- */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="container mx-auto px-6 relative z-10">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                        <div>
+                            <span className="text-purple-500 font-bold tracking-widest uppercase text-sm">Portfolio</span>
+                            <h2 className="text-3xl md:text-5xl font-black mt-2 text-slate-900 dark:text-white">Selected Works</h2>
+                        </div>
+                        <Link to="/projects" className="px-6 py-3 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-bold transition-colors">
+                            View All Cases
+                        </Link>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {[
+                            { title: "E-Commerce Reform", cat: "Web Development", img: "https://images.unsplash.com/photo-1661956602116-aa6865609028?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", desc: "40% Conversion Uplift" },
+                            { title: "FinTech Dashboard", cat: "SaaS Product", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", desc: "Real-time Analytics" }
+                        ].map((project, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                className="group relative rounded-3xl overflow-hidden aspect-[16/10] cursor-pointer"
+                            >
+                                <img src={project.img} alt={project.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80"></div>
+                                <div className="absolute bottom-0 left-0 w-full p-8">
+                                    <div className="text-blue-400 font-medium mb-1">{project.cat}</div>
+                                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{project.title}</h3>
+                                    <p className="text-slate-300 text-sm">{project.desc}</p>
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </section>
