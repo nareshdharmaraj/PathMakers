@@ -342,8 +342,8 @@ const Landing = () => {
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {[
-                            { title: "E-Commerce Reform", cat: "Web Development", img: "https://images.unsplash.com/photo-1661956602116-aa6865609028?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", desc: "40% Conversion Uplift" },
-                            { title: "FinTech Dashboard", cat: "SaaS Product", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", desc: "Real-time Analytics" }
+                            { title: "Retail POS System", cat: "Web Development", img: "/assets/projects/retailpos1.jpg", desc: "Comprehensive sales and inventory management." },
+                            { title: "Uthra", cat: "Web Platform", img: "/assets/projects/uthra1.jpg", desc: "Direct buyer-seller connection platform." }
                         ].map((project, index) => (
                             <motion.div
                                 key={index}
