@@ -7,6 +7,12 @@ CREATE TABLE IF NOT EXISTS clients (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(50),
+    organization_name VARCHAR(255),
+    address_door VARCHAR(100),
+    address_city VARCHAR(100),
+    address_district VARCHAR(100),
+    address_state VARCHAR(100),
+    address_pincode VARCHAR(20),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -29,6 +35,7 @@ CREATE TABLE IF NOT EXISTS employees (
     role VARCHAR(50) DEFAULT 'employee' CHECK (role IN ('admin', 'employee')),
     skills TEXT,
     is_active BOOLEAN DEFAULT TRUE,
+    last_login_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -44,7 +51,18 @@ CREATE TABLE IF NOT EXISTS requests (
     assigned_employee_id UUID REFERENCES employees(id),
     submission_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    admin_notes TEXT
+    admin_notes TEXT,
+    quoted_price VARCHAR(50),
+    admin_commands TEXT,
+    tech_stack_frontend VARCHAR(100),
+    tech_stack_backend VARCHAR(100),
+    tech_stack_db VARCHAR(100),
+    share_docs_with_employee BOOLEAN DEFAULT FALSE,
+    admin_expected_date DATE,
+    price_fixed DECIMAL(10, 2) DEFAULT 0.00,
+    amount_received DECIMAL(10, 2) DEFAULT 0.00,
+    website_url TEXT,
+    project_screenshots TEXT[]
 );
 
 -- 5. Projects Table
@@ -71,6 +89,28 @@ CREATE TABLE IF NOT EXISTS billing (
     due_date DATE,
     payment_date DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 7. Request Assignments Table
+CREATE TABLE IF NOT EXISTS request_assignments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
+    employee_id UUID REFERENCES employees(id) ON DELETE CASCADE,
+    assigned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(request_id, employee_id)
+);
+
+-- 8. Contact Messages Table
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(20) NOT NULL,
+    services TEXT,
+    subject VARCHAR(255),
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'New'
 );
 
 -- Trigger to update last_updated in requests
