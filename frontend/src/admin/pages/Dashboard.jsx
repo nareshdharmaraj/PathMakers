@@ -29,9 +29,34 @@ const AdminDashboard = () => {
         fetchStats();
     }, []);
 
-    const handleExportDatabase = () => {
-        // Trigger file download
-        window.location.href = `${API_URL}/admin/export-db`;
+    const handleExportDatabase = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/admin/export-db`, {
+                method: 'GET',
+                headers: {
+                    'x-auth-token': token
+                }
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pathmakers_db_export_${new Date().toISOString().slice(0, 10)}.sql`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                console.error("Export failed", response.statusText);
+                alert("Failed to export database. Please check permissions.");
+            }
+        } catch (error) {
+            console.error("Export error", error);
+            alert("An error occurred during export.");
+        }
     };
 
     if (loading) {

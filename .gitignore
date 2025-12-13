@@ -1,6 +1,8 @@
 # Defaults
 .env
 .env.local
+.env.*
+.env.production
 .env.*.local
 env.md
 orgdetails.md
