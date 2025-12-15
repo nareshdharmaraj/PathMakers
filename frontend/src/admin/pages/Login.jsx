@@ -82,7 +82,7 @@ const AdminLogin = () => {
 
                         <div className="relative bg-slate-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
                             <div className="text-center mb-8">
-                                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">System Login</h2>
+                                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">System Login v2.0</h2>
                                 <div className="mt-3 inline-block px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">
                                     Only for PathMakers Administration
                                 </div>
