@@ -122,6 +122,8 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_request_modtime ON requests;
+
 CREATE TRIGGER update_request_modtime
 BEFORE UPDATE ON requests
 FOR EACH ROW
