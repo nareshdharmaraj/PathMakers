@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import SpotlightCard from '../../components/ui/SpotlightCard';
+import { API_URL } from '../../utils/api';
 
 const Contact = () => {
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '', services: [] });
@@ -24,7 +25,7 @@ const Contact = () => {
         setIsSuccess(false);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/public/messages`, {
+            const res = await fetch(`${API_URL}/public/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

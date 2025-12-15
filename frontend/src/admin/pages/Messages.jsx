@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loader2, Mail, Phone, Calendar, ArrowUpRight, Filter, Search, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_URL } from '../../utils/api';
 
 const Messages = () => {
     const [messages, setMessages] = useState([]);
@@ -24,7 +25,7 @@ const Messages = () => {
         const queryParams = new URLSearchParams(filters).toString();
         try {
             setLoading(true);
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/messages?${queryParams}`, {
+            const res = await axios.get(`${API_URL}/admin/messages?${queryParams}`, {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             setMessages(res.data);
